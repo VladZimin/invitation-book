@@ -10,7 +10,8 @@ function App() {
   const [invitationList, setInvitationList] = React.useState([])
   const [inputValue, setInputValue] = React.useState('')
   const [isLoading, setLoading] = React.useState(true)
-  const [isSuccess, setSuccess] = React.useState(false)
+  const [isDisabledBtn, setDisabledBtn] = React.useState(false)
+  const [isSubmitted, setSubmitted] = React.useState(false)
 
   React.useEffect(async () => {
     let res = await axios.get(
@@ -25,7 +26,6 @@ function App() {
       `https://61795c43aa7f3400174049f4.mockapi.io/users?search=${inputValue}`
     )
     setUsers(res.data)
-    setLoading(false)
   }, [inputValue])
 
   const handleChangeInput = (event) => {
@@ -43,13 +43,15 @@ function App() {
   }
   const sendListRequest = async () => {
     try {
+      setDisabledBtn(true)
       await axios.post(
         'https://61795c43aa7f3400174049f4.mockapi.io/invited-users',
         invitationList
       )
-      setSuccess(true)
+      setDisabledBtn(false)
+      setSubmitted(true)
     } catch (err) {
-      throw alert(new Error('Данные не отправлены'))
+      throw alert(err)
     }
   }
   const handleClickSend = (event) => {
@@ -62,11 +64,11 @@ function App() {
   }
 
   const handleClickOkay = () => {
-    setSuccess(false)
+    setSubmitted(false)
     setInvitationList([])
   }
 
-  if (isSuccess) {
+  if (isSubmitted) {
     return <Success onOkay={handleClickOkay} />
   }
 
@@ -121,7 +123,11 @@ function App() {
 
           <div className="form__btn">
             <button className="form__btn-cancel">Отмена</button>
-            <button className="form__btn-submit" type="submit">
+            <button
+              disabled={isDisabledBtn}
+              className="form__btn-submit"
+              type="submit"
+            >
               Отправить
             </button>
           </div>
