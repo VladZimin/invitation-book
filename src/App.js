@@ -20,6 +20,14 @@ function App() {
     setLoading(false)
   }, [])
 
+  React.useEffect(async () => {
+    let res = await axios.get(
+      `https://61795c43aa7f3400174049f4.mockapi.io/users?search=${inputValue}`
+    )
+    setUsers(res.data)
+    setLoading(false)
+  }, [inputValue])
+
   const handleChangeInput = (event) => {
     setInputValue(event.target.value)
   }
@@ -34,11 +42,15 @@ function App() {
     }
   }
   const sendListRequest = async () => {
-    await axios.post(
-      'https://61795c43aa7f3400174049f4.mockapi.io/invited-users',
-      invitationList
-    )
-    setSuccess(true)
+    try {
+      await axios.post(
+        'https://61795c43aa7f3400174049f4.mockapi.io/invited-users',
+        invitationList
+      )
+      setSuccess(true)
+    } catch (err) {
+      throw alert(new Error('Данные не отправлены'))
+    }
   }
   const handleClickSend = (event) => {
     event.preventDefault()
@@ -94,18 +106,14 @@ function App() {
 
           <div className="users">
             {!isLoading ? (
-              users
-                .filter((obj) =>
-                  obj.fullName.toLowerCase().includes(inputValue.toLowerCase())
-                )
-                .map((obj) => (
-                  <User
-                    key={obj.email}
-                    {...obj}
-                    onAdd={addUser}
-                    isAdded={invitationList.find((o) => o.id === obj.id)}
-                  />
-                ))
+              users.map((obj) => (
+                <User
+                  key={obj.email}
+                  {...obj}
+                  onAdd={addUser}
+                  isAdded={invitationList.find((o) => o.id === obj.id)}
+                />
+              ))
             ) : (
               <img src={skeletonPng} alt="Загрузка" />
             )}
