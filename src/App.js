@@ -13,19 +13,24 @@ function App() {
   const [isDisabledBtn, setDisabledBtn] = React.useState(false)
   const [isSubmitted, setSubmitted] = React.useState(false)
 
-  React.useEffect(async () => {
+  const getUsers = async () => {
     let res = await axios.get(
       'https://61795c43aa7f3400174049f4.mockapi.io/users'
     )
     setUsers(res.data)
     setLoading(false)
+  }
+  React.useEffect(() => {
+    getUsers()
   }, [])
-
-  React.useEffect(async () => {
+  const searchUsers = async () => {
     let res = await axios.get(
-      `https://61795c43aa7f3400174049f4.mockapi.io/users?search=${inputValue}`
+      `https://61795c43aa7f3400174049f4.mockapi.io/users?fullName=${inputValue}`
     )
     setUsers(res.data)
+  }
+  React.useEffect(() => {
+    searchUsers()
   }, [inputValue])
 
   const handleChangeInput = (event) => {
@@ -122,7 +127,13 @@ function App() {
           </div>
 
           <div className="form__btn">
-            <button className="form__btn-cancel">Отмена</button>
+            <button
+              type="button"
+              onClick={handleClickOkay}
+              className="form__btn-cancel"
+            >
+              Отмена
+            </button>
             <button
               disabled={isDisabledBtn}
               className="form__btn-submit"
